@@ -1,0 +1,5 @@
+2025-04-23 02:33:42,116 - INFO - Hyperparameters:
+2025-04-23 02:33:42,117 - INFO - model: {'embed_dim': 64, 'n_layers': 2, 'dropout': 0.1, 'temperature': 0.2}
+2025-04-23 02:33:42,117 - INFO - training: {'batch_size': 256, 'learning_rate': 0.001, 'weight_decay': 1e-05, 'num_epochs': 100, 'early_stopping_patience': 10, 'device': 'cpu', 'num_workers': 4, 'save_dir': 'checkpoints', 'log_dir': 'logs'}
+2025-04-23 02:33:42,117 - INFO - data: {'data_path': 'data', 'train_ratio': 0.8, 'val_ratio': 0.1, 'test_ratio': 0.1, 'random_seed': 42, 'num_negatives': 4}
+2025-04-23 02:33:42,117 - INFO - º”‘ÿ ˝æ›...
