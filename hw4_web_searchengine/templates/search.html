@@ -1,0 +1,650 @@
+{% extends "base.html" %}
+
+{% block title %}搜索结果 - {{ results.query }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-header {
+        background-color: #f8f9fa;
+        padding: 20px 0;
+        border-bottom: 1px solid #dfe1e5;
+    }
+    
+    .search-header .brand-text {
+        font-size: 2rem;
+        font-weight: 300;
+        margin-right: 20px;
+    }
+    
+    .search-header .brand-text .letter-南 { color: #4285f4; }
+    .search-header .brand-text .letter-开 { color: #ea4335; }
+    .search-header .brand-text .letter-新 { color: #fbbc05; }
+    .search-header .brand-text .letter-闻 { color: #4285f4; }
+    .search-header .brand-text .letter-搜 { color: #0f9d58; }
+    .search-header .brand-text .letter-索 { color: #ea4335; }
+    .search-header .brand-text .letter-s { color: #fbbc05; }
+    
+    .search-box-header {
+        flex: 1;
+        max-width: 500px;
+        position: relative;
+    }
+    
+    .search-input-header {
+        width: 100%;
+        height: 36px;
+        border: 1px solid #dfe1e5;
+        border-radius: 18px;
+        padding: 0 40px 0 15px;
+        font-size: 14px;
+        outline: none;
+    }
+    
+    .search-icon-header {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9aa0a6;
+        font-size: 12px;
+        pointer-events: none;
+    }
+    
+    .search-filters {
+        margin: 20px 0;
+    }
+    
+    .filter-btn {
+        background: none;
+        border: 1px solid #ddd;
+        padding: 5px 15px;
+        margin-right: 10px;
+        border-radius: 15px;
+        font-size: 13px;
+        color: #666;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+    
+    .filter-btn.active {
+        background-color: #1a73e8;
+        color: white;
+        border-color: #1a73e8;
+    }
+    
+    .filter-btn:hover {
+        background-color: #f1f3f4;
+        color: #666;
+        text-decoration: none;
+    }
+    
+    .filter-btn.active:hover {
+        background-color: #1557b0;
+        color: white;
+    }
+    
+    .search-stats {
+        color: #70757a;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    
+    .result-item {
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .result-item:last-child {
+        border-bottom: none;
+    }
+    
+    .result-title {
+        color: #1a0dab;
+        font-size: 18px;
+        line-height: 1.3;
+        margin-bottom: 5px;
+        text-decoration: none;
+    }
+    
+    .result-title:hover {
+        text-decoration: underline;
+    }
+    
+    .result-url {
+        color: #006621;
+        font-size: 14px;
+        margin-bottom: 5px;
+        word-break: break-all;
+    }
+    
+    .result-snippet {
+        color: #545454;
+        font-size: 14px;
+        line-height: 1.4;
+        margin-bottom: 10px;
+    }
+    
+    .result-meta {
+        font-size: 12px;
+        color: #70757a;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .result-meta .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .snapshot-link {
+        color: #1a73e8;
+        text-decoration: none;
+        font-size: 12px;
+    }
+    
+    .snapshot-link:hover {
+        text-decoration: underline;
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 50px 0;
+        color: #70757a;
+    }
+    
+    .no-results h4 {
+        margin-bottom: 20px;
+    }
+    
+    .pagination-custom {
+        justify-content: center;
+        margin-top: 40px;
+    }
+    
+    .page-link {
+        color: #1a73e8;
+        border: none;
+        padding: 10px 15px;
+    }
+    
+    .page-link:hover {
+        background-color: #f1f3f4;
+        color: #1a73e8;
+    }
+    
+    .page-item.active .page-link {
+        background-color: #1a73e8;
+        border-color: #1a73e8;
+    }
+    
+    .personalization-info {
+        background-color: #e8f0fe;
+        border: 1px solid #c8e7ff;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 20px;
+        font-size: 13px;
+        color: #1558d6;
+    }
+    
+    /* 搜索建议样式 */
+    .suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #dfe1e5;
+        border-top: none;
+        border-radius: 0 0 18px 18px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 1000;
+        display: none;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .suggestion-group {
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .suggestion-group:last-child {
+        border-bottom: none;
+    }
+    
+    .suggestion-group-title {
+        padding: 6px 15px 3px;
+        font-size: 10px;
+        color: #70757a;
+        font-weight: 500;
+        text-transform: uppercase;
+        background-color: #f8f9fa;
+    }
+    
+    .suggestion-item {
+        padding: 6px 15px;
+        cursor: pointer;
+        border-bottom: 1px solid #f8f9fa;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.1s ease;
+        font-size: 13px;
+    }
+    
+    .suggestion-item:hover, 
+    .suggestion-item.selected {
+        background-color: #f1f3f4;
+    }
+    
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    
+    .suggestion-icon {
+        width: 14px;
+        margin-right: 10px;
+        color: #70757a;
+        font-size: 10px;
+    }
+    
+    .suggestion-text {
+        flex: 1;
+        color: #333;
+    }
+    
+    .suggestion-query {
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 搜索头部 -->
+<div class="search-header">
+    <div class="container">
+        <div class="d-flex align-items-center">
+            <a href="{{ url_for('index') }}" class="brand-text text-decoration-none">
+                <span class="letter-南">N</span><span class="letter-开">K</span><span class="letter-新">U</span><span class="letter-闻">N</span><span class="letter-搜">E</span><span class="letter-索">W</span><span class="letter-s">S</span>
+            </a>
+            
+            <form action="{{ url_for('search') }}" method="GET" class="search-box-header" id="search-form">
+                <div class="position-relative">
+                    <i class="fas fa-search search-icon-header"></i>
+                    <input type="text" name="q" class="search-input-header" value="{{ results.query }}" placeholder="搜索南开新闻..." id="search-input" autocomplete="off">
+                    <input type="hidden" name="type" value="{{ search_type }}">
+                    <div class="suggestions" id="search-suggestions"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 搜索内容 -->
+<div class="container mt-4">
+    {% if results.error %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> {{ results.error }}
+        </div>
+    {% else %}
+        <!-- 搜索过滤器 -->
+        <div class="search-filters">
+            <a href="{{ url_for('search') }}?q={{ results.query }}&type=basic" 
+               class="filter-btn {{ 'active' if search_type == 'basic' else '' }}">
+                <i class="fas fa-search"></i> 全部
+            </a>
+            <a href="{{ url_for('search') }}?q={{ results.query }}&type=phrase" 
+               class="filter-btn {{ 'active' if search_type == 'phrase' else '' }}">
+                <i class="fas fa-quote-left"></i> 短语
+            </a>
+            <a href="{{ url_for('search') }}?q={{ results.query }}&type=wildcard" 
+               class="filter-btn {{ 'active' if search_type == 'wildcard' else '' }}">
+                <i class="fas fa-star"></i> 通配符
+            </a>
+            <a href="{{ url_for('search') }}?q={{ results.query }}&type=documents" 
+               class="filter-btn {{ 'active' if search_type == 'documents' else '' }}">
+                <i class="fas fa-file"></i> 文档
+            </a>
+        </div>
+        
+        {% if results.user_college and results.user_college != '通用' %}
+        <div class="personalization-info">
+            <i class="fas fa-user-graduate"></i> 
+            已为您的专业（{{ results.user_college }}）优化搜索结果，相关内容将获得更高排序权重
+        </div>
+        {% endif %}
+        
+        <!-- 搜索统计 -->
+        <div class="search-stats">
+            <i class="fas fa-info-circle"></i>
+            找到约 {{ results.total }} 条结果 (关键词: {{ results.query }})
+            {% if search_type != 'basic' %}
+                - 搜索类型: 
+                {% if search_type == 'phrase' %}短语搜索
+                {% elif search_type == 'wildcard' %}通配符搜索
+                {% elif search_type == 'documents' %}文档搜索
+                {% endif %}
+            {% endif %}
+        </div>
+        
+        <!-- 搜索结果 -->
+        {% if results.results %}
+            {% for result in results.results %}
+            <div class="result-item">
+                <h5 class="result-title">
+                    <a href="{{ result.url }}" target="_blank">{{ result.title }}</a>
+                </h5>
+                <div class="result-url">{{ result.url }}</div>
+                <div class="result-snippet">{{ result.content }}</div>
+                <div class="result-meta">
+                    {% if result.source %}
+                    <span class="meta-item">
+                        <i class="fas fa-building"></i>
+                        来源: {{ result.source }}
+                    </span>
+                    {% endif %}
+                    
+                    {% if result.date %}
+                    <span class="meta-item">
+                        <i class="fas fa-calendar"></i>
+                        发布: {{ result.date.strftime('%Y-%m-%d') if result.date.strftime else result.date }}
+                    </span>
+                    {% endif %}
+                    
+                    {% if result.pagerank %}
+                    <span class="meta-item">
+                        <i class="fas fa-chart-line"></i>
+                        权重: {{ "%.4f"|format(result.pagerank) }}
+                    </span>
+                    {% endif %}
+                    
+                    {% if result.final_score %}
+                    <span class="meta-item">
+                        <i class="fas fa-star"></i>
+                        相关度: {{ "%.2f"|format(result.final_score) }}
+                    </span>
+                    {% endif %}
+                    
+                    {% if result.snapshot_hash %}
+                    <span class="meta-item">
+                        <a href="{{ url_for('snapshot', snapshot_hash=result.snapshot_hash) }}" 
+                           class="snapshot-link" target="_blank">
+                            <i class="fas fa-camera"></i> 网页快照
+                        </a>
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <!-- 分页 -->
+            {% if results.total > results.per_page %}
+            <nav aria-label="搜索结果分页">
+                <ul class="pagination pagination-custom">
+                    {% set total_pages = (results.total / results.per_page) | round(0, 'ceil') | int %}
+                    
+                    {% if results.page > 1 %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('search') }}?q={{ results.query }}&type={{ search_type }}&page={{ results.page - 1 }}">
+                            <i class="fas fa-chevron-left"></i> 上一页
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in range(1, total_pages + 1) %}
+                        {% if page_num <= 10 %}
+                        <li class="page-item {{ 'active' if page_num == results.page else '' }}">
+                            <a class="page-link" href="{{ url_for('search') }}?q={{ results.query }}&type={{ search_type }}&page={{ page_num }}">
+                                {{ page_num }}
+                            </a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if results.page < total_pages %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('search') }}?q={{ results.query }}&type={{ search_type }}&page={{ results.page + 1 }}">
+                            下一页 <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            
+        {% else %}
+            <div class="no-results">
+                <h4><i class="fas fa-search"></i> 没有找到相关结果</h4>
+                <p>尝试使用不同的关键词，或者：</p>
+                <ul class="list-unstyled">
+                    <li>• 检查拼写是否正确</li>
+                    <li>• 尝试更通用的关键词</li>
+                    <li>• 使用同义词或相关词汇</li>
+                    <li>• 减少搜索词的数量</li>
+                </ul>
+                
+                <div class="mt-4">
+                    <h6>相关搜索建议：</h6>
+                    <a href="{{ url_for('search') }}?q=南开新闻" class="btn btn-outline-primary btn-sm me-2">南开新闻</a>
+                    <a href="{{ url_for('search') }}?q=学术活动" class="btn btn-outline-primary btn-sm me-2">学术活动</a>
+                    <a href="{{ url_for('search') }}?q=校园生活" class="btn btn-outline-primary btn-sm">校园生活</a>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 高亮搜索关键词
+    const query = "{{ results.query }}";
+    if (query) {
+        const keywords = query.split(' ');
+        keywords.forEach(keyword => {
+            if (keyword.length > 1) {
+                highlightKeyword(keyword);
+            }
+        });
+    }
+    
+    // 初始化搜索建议
+    initSearchSuggestions();
+});
+
+function highlightKeyword(keyword) {
+    const elements = document.querySelectorAll('.result-snippet, .result-title');
+    elements.forEach(element => {
+        const text = element.innerHTML;
+        const regex = new RegExp(`(${keyword})`, 'gi');
+        element.innerHTML = text.replace(regex, '<mark>$1</mark>');
+    });
+}
+
+function initSearchSuggestions() {
+    const searchInput = document.getElementById('search-input');
+    const suggestions = document.getElementById('search-suggestions');
+    let selectedIndex = -1;
+    let currentSuggestions = [];
+    let suggestionTimeout;
+    
+    if (!searchInput || !suggestions) return;
+    
+    // 搜索建议功能
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // 清除之前的超时
+        clearTimeout(suggestionTimeout);
+        
+        if (query.length < 1) {
+            suggestions.style.display = 'none';
+            return;
+        }
+        
+        // 防抖处理，减少API调用
+        suggestionTimeout = setTimeout(() => {
+            fetchSuggestions(query);
+        }, 200);
+    });
+    
+    function fetchSuggestions(query) {
+        fetch(`/api/suggestions?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                renderSuggestions(data, query);
+            })
+            .catch(error => {
+                console.error('获取搜索建议失败:', error);
+                suggestions.style.display = 'none';
+            });
+    }
+    
+    function renderSuggestions(data, query) {
+        const categorized = data.categorized || {};
+        currentSuggestions = data.suggestions || [];
+        
+        if (currentSuggestions.length === 0) {
+            suggestions.style.display = 'none';
+            return;
+        }
+        
+        let html = '';
+        
+        // 分组显示建议
+        const groups = [
+            { key: 'recent', title: '最近搜索', icon: 'fas fa-clock' },
+            { key: 'frequent', title: '常用搜索', icon: 'fas fa-star' },
+            { key: 'college', title: '专业相关', icon: 'fas fa-graduation-cap' },
+            { key: 'smart', title: '智能建议', icon: 'fas fa-lightbulb' },
+            { key: 'hot', title: '热门搜索', icon: 'fas fa-fire' }
+        ];
+        
+        groups.forEach(group => {
+            const items = categorized[group.key] || [];
+            if (items.length > 0) {
+                html += `<div class="suggestion-group">`;
+                html += `<div class="suggestion-group-title">
+                    <i class="${group.icon}"></i> ${group.title}
+                </div>`;
+                
+                items.forEach((item, index) => {
+                    const highlightedText = highlightQuery(item, query);
+                    html += `<div class="suggestion-item" data-suggestion="${escapeHtml(item)}">
+                        <i class="${group.icon} suggestion-icon"></i>
+                        <span class="suggestion-text">${highlightedText}</span>
+                    </div>`;
+                });
+                
+                html += `</div>`;
+            }
+        });
+        
+        // 如果没有分组数据，显示简单列表
+        if (!html && currentSuggestions.length > 0) {
+            currentSuggestions.forEach(item => {
+                const highlightedText = highlightQuery(item, query);
+                html += `<div class="suggestion-item" data-suggestion="${escapeHtml(item)}">
+                    <i class="fas fa-search suggestion-icon"></i>
+                    <span class="suggestion-text">${highlightedText}</span>
+                </div>`;
+            });
+        }
+        
+        suggestions.innerHTML = html;
+        suggestions.style.display = 'block';
+        selectedIndex = -1;
+    }
+    
+    function highlightQuery(text, query) {
+        const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+        return text.replace(regex, '<span class="suggestion-query">$1</span>');
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    // 键盘导航
+    searchInput.addEventListener('keydown', function(e) {
+        const suggestionItems = suggestions.querySelectorAll('.suggestion-item');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, suggestionItems.length - 1);
+            updateSelection(suggestionItems);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, -1);
+            updateSelection(suggestionItems);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && suggestionItems[selectedIndex]) {
+                const suggestion = suggestionItems[selectedIndex].dataset.suggestion;
+                selectSuggestion(suggestion);
+            } else {
+                // 直接搜索当前输入
+                this.form.submit();
+            }
+        } else if (e.key === 'Escape') {
+            suggestions.style.display = 'none';
+            selectedIndex = -1;
+        }
+    });
+    
+    function updateSelection(items) {
+        items.forEach((item, index) => {
+            item.classList.toggle('selected', index === selectedIndex);
+        });
+        
+        // 滚动到选中项
+        if (selectedIndex >= 0 && items[selectedIndex]) {
+            items[selectedIndex].scrollIntoView({
+                block: 'nearest',
+                behavior: 'smooth'
+            });
+        }
+    }
+    
+    // 点击建议项
+    suggestions.addEventListener('click', function(e) {
+        const suggestionItem = e.target.closest('.suggestion-item');
+        if (suggestionItem) {
+            const suggestion = suggestionItem.dataset.suggestion;
+            selectSuggestion(suggestion);
+        }
+    });
+    
+    // 点击其他地方隐藏建议
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.style.display = 'none';
+            selectedIndex = -1;
+        }
+    });
+    
+    // 焦点事件
+    searchInput.addEventListener('focus', function() {
+        if (this.value.trim().length >= 1 && currentSuggestions.length > 0) {
+            suggestions.style.display = 'block';
+        }
+    });
+    
+    function selectSuggestion(text) {
+        searchInput.value = text;
+        suggestions.style.display = 'none';
+        document.getElementById('search-form').submit();
+    }
+}
+</script>
+{% endblock %} 

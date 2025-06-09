@@ -1,0 +1,567 @@
+{% extends "base.html" %}
+
+{% block title %}南开新闻搜索{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-container {
+        min-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .brand-logo {
+        font-size: 6rem;
+        font-weight: 300;
+        margin-bottom: 2rem;
+        letter-spacing: -5px;
+    }
+    
+    .brand-logo .letter-南 { color: #4285f4; }
+    .brand-logo .letter-开 { color: #ea4335; }
+    .brand-logo .letter-新 { color: #fbbc05; }
+    .brand-logo .letter-闻 { color: #4285f4; }
+    .brand-logo .letter-搜 { color: #0f9d58; }
+    .brand-logo .letter-索 { color: #ea4335; }
+    .brand-logo .letter-s { color: #fbbc05; }
+    
+    .search-box {
+        width: 100%;
+        max-width: 584px;
+        position: relative;
+    }
+    
+    .search-input {
+        width: 100%;
+        height: 44px;
+        border: 1px solid #dfe1e5;
+        border-radius: 24px;
+        padding: 0 48px 0 20px;
+        font-size: 16px;
+        outline: none;
+        box-shadow: none;
+        transition: all 0.2s ease;
+    }
+    
+    .search-input:focus {
+        border-color: rgba(66, 133, 244, 0.5);
+        box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
+    }
+    
+    .search-icon {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9aa0a6;
+        font-size: 14px;
+        pointer-events: none;
+    }
+    
+    .search-buttons {
+        margin-top: 30px;
+        text-align: center;
+    }
+    
+    .search-btn {
+        background-color: #f8f9fa;
+        border: 1px solid #f8f9fa;
+        border-radius: 4px;
+        color: #3c4043;
+        font-size: 14px;
+        margin: 5px;
+        padding: 10px 20px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+    
+    .search-btn:hover {
+        box-shadow: 0 1px 1px rgba(0,0,0,.1);
+        background-color: #f1f3f4;
+        color: #3c4043;
+        text-decoration: none;
+    }
+    
+    .search-options {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .search-option {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        font-size: 12px;
+        color: #666;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .search-option:hover {
+        background-color: #f1f3f4;
+        color: #666;
+        text-decoration: none;
+    }
+    
+    .college-info {
+        margin-top: 20px;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .stats-info {
+        margin-top: 40px;
+        color: #70757a;
+        font-size: 13px;
+    }
+    
+    .suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #dfe1e5;
+        border-top: none;
+        border-radius: 0 0 24px 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        z-index: 1000;
+        display: none;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .suggestion-group {
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .suggestion-group:last-child {
+        border-bottom: none;
+    }
+    
+    .suggestion-group-title {
+        padding: 8px 20px 4px;
+        font-size: 11px;
+        color: #70757a;
+        font-weight: 500;
+        text-transform: uppercase;
+        background-color: #f8f9fa;
+    }
+    
+    .suggestion-item {
+        padding: 8px 20px;
+        cursor: pointer;
+        border-bottom: 1px solid #f8f9fa;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.1s ease;
+    }
+    
+    .suggestion-item:hover, 
+    .suggestion-item.selected {
+        background-color: #f1f3f4;
+    }
+    
+    .suggestion-item:last-child {
+        border-bottom: none;
+    }
+    
+    .suggestion-icon {
+        width: 16px;
+        margin-right: 12px;
+        color: #70757a;
+        font-size: 12px;
+    }
+    
+    .suggestion-text {
+        flex: 1;
+        font-size: 14px;
+        color: #333;
+    }
+    
+    .suggestion-query {
+        font-weight: 600;
+    }
+    
+    .suggestion-meta {
+        font-size: 11px;
+        color: #70757a;
+        margin-left: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="search-container">
+    <div class="text-center">
+        <!-- NKUNEWS Logo -->
+        <div class="brand-logo">
+            <span class="letter-南">N</span><span class="letter-开">K</span><span class="letter-新">U</span><span class="letter-闻">N</span><span class="letter-搜">E</span><span class="letter-索">W</span><span class="letter-s">S</span>
+        </div>
+        
+        <!-- 搜索框 -->
+        <form action="{{ url_for('search') }}" method="GET" class="search-box">
+            <div class="position-relative">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" 
+                       name="q" 
+                       class="search-input" 
+                       placeholder="搜索南开新闻..." 
+                       autocomplete="off"
+                       id="searchInput">
+                <div class="suggestions" id="suggestions"></div>
+            </div>
+            
+            <!-- 搜索按钮 -->
+            <div class="search-buttons">
+                <button type="submit" name="type" value="basic" class="search-btn">
+                    <i class="fas fa-search"></i> 基础搜索
+                </button>
+                <button type="submit" name="type" value="phrase" class="search-btn">
+                    <i class="fas fa-quote-left"></i> 短语搜索
+                </button>
+                <button type="submit" name="type" value="wildcard" class="search-btn">
+                    <i class="fas fa-star"></i> 通配搜索
+                </button>
+                <button type="submit" name="type" value="documents" class="search-btn">
+                    <i class="fas fa-file"></i> 文档搜索
+                </button>
+            </div>
+        </form>
+        
+        <!-- 搜索选项 -->
+        <div class="search-options">
+            <span class="search-option">基础搜索：关键词查询</span>
+            <span class="search-option">短语搜索："完整短语"</span>
+            <span class="search-option">通配搜索：温* 或 计?</span>
+            <span class="search-option">文档搜索：PDF、DOC等文件</span>
+        </div>
+        
+        {% if session.username %}
+        <div class="college-info">
+            <i class="fas fa-user-graduate"></i> 
+            当前用户：{{ session.username }}
+            {% if session.college %}
+                ({{ session.college }}) - 为您提供个性化搜索结果
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="college-info">
+            <i class="fas fa-info-circle"></i> 
+            <a href="{{ url_for('login') }}">登录</a> 后可享受个性化搜索服务
+        </div>
+        {% endif %}
+        
+        <div class="stats-info">
+            <i class="fas fa-database"></i> 
+            基于南开大学校内资源构建 | 支持BM25算法和时效性排序
+        </div>
+    </div>
+</div>
+
+<!-- 智能搜索建议 -->
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <div id="trending-searches">
+                <!-- 动态加载的热门搜索 -->
+                <div class="text-center">
+                    <h5 class="text-muted mb-4">
+                        <i class="fas fa-fire text-warning"></i> 实时热搜
+                    </h5>
+                    <div id="trending-today" class="mb-3">
+                        <span class="text-muted small">今日热搜:</span>
+                        <div class="trending-list"></div>
+                    </div>
+                    <div id="trending-week" class="mb-3">
+                        <span class="text-muted small">本周热搜:</span>
+                        <div class="trending-list"></div>
+                    </div>
+                    {% if session.username %}
+                    <div id="trending-personalized" class="mb-3">
+                        <span class="text-muted small">
+                            <i class="fas fa-user-graduate"></i> 为您推荐:
+                        </span>
+                        <div class="trending-list"></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 默认热门搜索（加载失败时显示） -->
+            <div id="default-trending" class="text-center" style="display: none;">
+                <h5 class="text-muted mb-4">热门搜索</h5>
+                <div>
+                    <a href="{{ url_for('search') }}?q=夜跑活动" class="search-option me-3">夜跑活动</a>
+                    <a href="{{ url_for('search') }}?q=金融学院" class="search-option me-3">金融学院</a>
+                    <a href="{{ url_for('search') }}?q=计算机学院" class="search-option me-3">计算机学院</a>
+                    <a href="{{ url_for('search') }}?q=学术讲座" class="search-option me-3">学术讲座</a>
+                    <a href="{{ url_for('search') }}?q=社团活动" class="search-option me-3">社团活动</a>
+                    <a href="{{ url_for('search') }}?q=南开新闻" class="search-option">南开新闻</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const suggestions = document.getElementById('suggestions');
+    let selectedIndex = -1;
+    let currentSuggestions = [];
+    let suggestionTimeout;
+    
+    // 加载热门搜索
+    loadTrendingSearches();
+    
+    // 搜索建议功能
+    searchInput.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // 清除之前的超时
+        clearTimeout(suggestionTimeout);
+        
+        if (query.length < 1) {
+            suggestions.style.display = 'none';
+            return;
+        }
+        
+        // 防抖处理，减少API调用
+        suggestionTimeout = setTimeout(() => {
+            fetchSuggestions(query);
+        }, 200);
+    });
+    
+    function fetchSuggestions(query) {
+        fetch(`/api/suggestions?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                renderSuggestions(data, query);
+            })
+            .catch(error => {
+                console.error('获取搜索建议失败:', error);
+                suggestions.style.display = 'none';
+            });
+    }
+    
+    function renderSuggestions(data, query) {
+        const categorized = data.categorized || {};
+        currentSuggestions = data.suggestions || [];
+        
+        if (currentSuggestions.length === 0) {
+            suggestions.style.display = 'none';
+            return;
+        }
+        
+        let html = '';
+        
+        // 分组显示建议
+        const groups = [
+            { key: 'recent', title: '最近搜索', icon: 'fas fa-clock' },
+            { key: 'frequent', title: '常用搜索', icon: 'fas fa-star' },
+            { key: 'college', title: '专业相关', icon: 'fas fa-graduation-cap' },
+            { key: 'smart', title: '智能建议', icon: 'fas fa-lightbulb' },
+            { key: 'hot', title: '热门搜索', icon: 'fas fa-fire' }
+        ];
+        
+        groups.forEach(group => {
+            const items = categorized[group.key] || [];
+            if (items.length > 0) {
+                html += `<div class="suggestion-group">`;
+                html += `<div class="suggestion-group-title">
+                    <i class="${group.icon}"></i> ${group.title}
+                </div>`;
+                
+                items.forEach((item, index) => {
+                    const highlightedText = highlightQuery(item, query);
+                    html += `<div class="suggestion-item" data-suggestion="${escapeHtml(item)}">
+                        <i class="${group.icon} suggestion-icon"></i>
+                        <span class="suggestion-text">${highlightedText}</span>
+                    </div>`;
+                });
+                
+                html += `</div>`;
+            }
+        });
+        
+        // 如果没有分组数据，显示简单列表
+        if (!html && currentSuggestions.length > 0) {
+            currentSuggestions.forEach(item => {
+                const highlightedText = highlightQuery(item, query);
+                html += `<div class="suggestion-item" data-suggestion="${escapeHtml(item)}">
+                    <i class="fas fa-search suggestion-icon"></i>
+                    <span class="suggestion-text">${highlightedText}</span>
+                </div>`;
+            });
+        }
+        
+        suggestions.innerHTML = html;
+        suggestions.style.display = 'block';
+        selectedIndex = -1;
+    }
+    
+    function highlightQuery(text, query) {
+        const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+        return text.replace(regex, '<span class="suggestion-query">$1</span>');
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+    
+    // 键盘导航
+    searchInput.addEventListener('keydown', function(e) {
+        const suggestionItems = suggestions.querySelectorAll('.suggestion-item');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = Math.min(selectedIndex + 1, suggestionItems.length - 1);
+            updateSelection(suggestionItems);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = Math.max(selectedIndex - 1, -1);
+            updateSelection(suggestionItems);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && suggestionItems[selectedIndex]) {
+                const suggestion = suggestionItems[selectedIndex].dataset.suggestion;
+                selectSuggestion(suggestion);
+            } else {
+                // 直接搜索当前输入
+                this.form.submit();
+            }
+        } else if (e.key === 'Escape') {
+            suggestions.style.display = 'none';
+            selectedIndex = -1;
+        }
+    });
+    
+    function updateSelection(items) {
+        items.forEach((item, index) => {
+            item.classList.toggle('selected', index === selectedIndex);
+        });
+        
+        // 滚动到选中项
+        if (selectedIndex >= 0 && items[selectedIndex]) {
+            items[selectedIndex].scrollIntoView({
+                block: 'nearest',
+                behavior: 'smooth'
+            });
+        }
+    }
+    
+    // 点击建议项
+    suggestions.addEventListener('click', function(e) {
+        const suggestionItem = e.target.closest('.suggestion-item');
+        if (suggestionItem) {
+            const suggestion = suggestionItem.dataset.suggestion;
+            selectSuggestion(suggestion);
+        }
+    });
+    
+    // 点击其他地方隐藏建议
+    document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.style.display = 'none';
+            selectedIndex = -1;
+        }
+    });
+    
+    // 焦点事件
+    searchInput.addEventListener('focus', function() {
+        if (this.value.trim().length >= 1 && currentSuggestions.length > 0) {
+            suggestions.style.display = 'block';
+        }
+    });
+});
+
+function selectSuggestion(text) {
+    const searchInput = document.getElementById('searchInput');
+    const suggestions = document.getElementById('suggestions');
+    
+    searchInput.value = text;
+    suggestions.style.display = 'none';
+    
+    // 可选：自动提交搜索
+    // searchInput.form.submit();
+}
+
+function loadTrendingSearches() {
+    fetch('/api/trending')
+        .then(response => response.json())
+        .then(data => {
+            renderTrendingSearches(data);
+        })
+        .catch(error => {
+            console.error('加载热门搜索失败:', error);
+            // 显示默认热门搜索
+            document.getElementById('trending-searches').style.display = 'none';
+            document.getElementById('default-trending').style.display = 'block';
+        });
+}
+
+function renderTrendingSearches(data) {
+    const trendingContainer = document.getElementById('trending-searches');
+    
+    // 渲染今日热搜
+    const todayList = document.querySelector('#trending-today .trending-list');
+    if (data.today && data.today.length > 0) {
+        todayList.innerHTML = data.today.map(item => 
+            `<a href="/search?q=${encodeURIComponent(item)}" class="search-option me-2 mb-2 d-inline-block">
+                <i class="fas fa-fire text-danger"></i> ${item}
+            </a>`
+        ).join('');
+    } else {
+        document.getElementById('trending-today').style.display = 'none';
+    }
+    
+    // 渲染本周热搜
+    const weekList = document.querySelector('#trending-week .trending-list');
+    if (data.week && data.week.length > 0) {
+        weekList.innerHTML = data.week.map(item => 
+            `<a href="/search?q=${encodeURIComponent(item)}" class="search-option me-2 mb-2 d-inline-block">
+                <i class="fas fa-chart-line text-primary"></i> ${item}
+            </a>`
+        ).join('');
+    } else {
+        document.getElementById('trending-week').style.display = 'none';
+    }
+    
+    // 渲染个性化推荐
+    const personalizedContainer = document.getElementById('trending-personalized');
+    if (personalizedContainer && data.personalized && data.personalized.length > 0) {
+        const personalizedList = personalizedContainer.querySelector('.trending-list');
+        personalizedList.innerHTML = data.personalized.map(item => 
+            `<a href="/search?q=${encodeURIComponent(item)}" class="search-option me-2 mb-2 d-inline-block">
+                <i class="fas fa-star text-warning"></i> ${item}
+            </a>`
+        ).join('');
+    } else if (personalizedContainer) {
+        personalizedContainer.style.display = 'none';
+    }
+    
+    // 如果所有列表都为空，显示默认搜索
+    if ((!data.today || data.today.length === 0) && 
+        (!data.week || data.week.length === 0) && 
+        (!data.personalized || data.personalized.length === 0)) {
+        trendingContainer.style.display = 'none';
+        document.getElementById('default-trending').style.display = 'block';
+    }
+}
+</script>
+{% endblock %} 

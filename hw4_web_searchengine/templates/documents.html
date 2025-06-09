@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block title %}文档搜索结果 - {{ results.query }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .document-item {
+        border: 1px solid #e1e5ea;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        background: white;
+        transition: all 0.2s ease;
+    }
+    
+    .document-item:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-color: #c8e7ff;
+    }
+    
+    .document-icon {
+        width: 48px;
+        height: 48px;
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 20px;
+        color: white;
+    }
+    
+    .file-pdf { background-color: #d73527; }
+    .file-doc { background-color: #2b579a; }
+    .file-docx { background-color: #2b579a; }
+    .file-xls { background-color: #217346; }
+    .file-xlsx { background-color: #217346; }
+    .file-ppt { background-color: #d24726; }
+    .file-pptx { background-color: #d24726; }
+    .file-txt { background-color: #666; }
+    .file-default { background-color: #666; }
+    
+    .document-title {
+        color: #1a0dab;
+        font-size: 18px;
+        font-weight: 500;
+        margin-bottom: 5px;
+        text-decoration: none;
+    }
+    
+    .document-title:hover {
+        text-decoration: underline;
+    }
+    
+    .document-meta {
+        color: #70757a;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+    
+    .file-size {
+        font-weight: 500;
+    }
+    
+    .download-btn {
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        text-decoration: none;
+        display: inline-block;
+        transition: background-color 0.2s ease;
+    }
+    
+    .download-btn:hover {
+        background-color: #1557b0;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .document-stats {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .back-to-search {
+        margin-bottom: 20px;
+    }
+    
+    .back-to-search a {
+        color: #1a73e8;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .back-to-search a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="back-to-search">
+        <a href="{{ url_for('search') }}?q={{ results.query }}&type=basic">
+            <i class="fas fa-arrow-left me-1"></i>返回新闻搜索
+        </a>
+    </div>
+    
+    {% if results.error %}
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> {{ results.error }}
+        </div>
+    {% else %}
+        <div class="document-stats">
+            <h4><i class="fas fa-file me-2"></i>文档搜索结果</h4>
+            <p class="mb-0">
+                <strong>搜索关键词：</strong>{{ results.query }} 
+                <span class="ms-3"><strong>找到文档：</strong>{{ results.total }} 个</span>
+            </p>
+        </div>
+        
+        {% if results.results %}
+            {% for doc in results.results %}
+            <div class="document-item">
+                <div class="d-flex">
+                    <div class="document-icon file-{{ doc.file_type.lower() if doc.file_type else 'default' }}">
+                        {% if doc.file_type %}
+                            {% if doc.file_type.lower() == 'pdf' %}
+                                <i class="fas fa-file-pdf"></i>
+                            {% elif doc.file_type.lower() in ['doc', 'docx'] %}
+                                <i class="fas fa-file-word"></i>
+                            {% elif doc.file_type.lower() in ['xls', 'xlsx'] %}
+                                <i class="fas fa-file-excel"></i>
+                            {% elif doc.file_type.lower() in ['ppt', 'pptx'] %}
+                                <i class="fas fa-file-powerpoint"></i>
+                            {% elif doc.file_type.lower() == 'txt' %}
+                                <i class="fas fa-file-text"></i>
+                            {% else %}
+                                <i class="fas fa-file"></i>
+                            {% endif %}
+                        {% else %}
+                            <i class="fas fa-file"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex-grow-1">
+                        <h5 class="document-title">
+                            <a href="{{ doc.url }}" target="_blank">
+                                {{ doc.file_name or doc.title or '未知文件' }}
+                            </a>
+                        </h5>
+                        
+                        {% if doc.title and doc.title != doc.file_name %}
+                        <div class="text-muted mb-2">{{ doc.title }}</div>
+                        {% endif %}
+                        
+                        <div class="document-meta">
+                            <span class="me-3">
+                                <i class="fas fa-tag me-1"></i>
+                                {{ doc.file_type.upper() if doc.file_type else '未知类型' }}
+                            </span>
+                            {% if doc.file_size %}
+                            <span class="me-3 file-size">
+                                <i class="fas fa-hdd me-1"></i>
+                                {% set size_mb = (doc.file_size / 1024 / 1024) %}
+                                {% if size_mb > 1 %}
+                                    {{ "%.1f"|format(size_mb) }} MB
+                                {% else %}
+                                    {% set size_kb = (doc.file_size / 1024) %}
+                                    {{ "%.0f"|format(size_kb) }} KB
+                                {% endif %}
+                            </span>
+                            {% endif %}
+                            <span>
+                                <i class="fas fa-link me-1"></i>
+                                <a href="{{ doc.url }}" target="_blank" class="text-muted">{{ doc.url }}</a>
+                            </span>
+                        </div>
+                        
+                        <div class="mt-3">
+                            <a href="{{ doc.url }}" target="_blank" class="download-btn">
+                                <i class="fas fa-download me-1"></i>查看/下载
+                            </a>
+                            {% if doc.gridfs_id %}
+                            <a href="/download/{{ doc.gridfs_id }}" class="download-btn ms-2">
+                                <i class="fas fa-server me-1"></i>本地下载
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-file-search fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">没有找到相关文档</h4>
+                <p class="text-muted">尝试使用不同的关键词搜索，或者：</p>
+                <ul class="list-unstyled text-muted">
+                    <li>• 检查文件名或标题拼写</li>
+                    <li>• 尝试更通用的关键词</li>
+                    <li>• 使用文档类型相关词汇</li>
+                </ul>
+                
+                <div class="mt-4">
+                    <a href="{{ url_for('search') }}?q=PDF" class="btn btn-outline-primary btn-sm me-2">搜索PDF</a>
+                    <a href="{{ url_for('search') }}?q=课件" class="btn btn-outline-primary btn-sm me-2">搜索课件</a>
+                    <a href="{{ url_for('search') }}?q=教案" class="btn btn-outline-primary btn-sm">搜索教案</a>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %} 

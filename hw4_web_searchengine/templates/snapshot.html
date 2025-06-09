@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+
+{% block title %}网页快照 - NKUNEWS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .snapshot-header {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .snapshot-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .snapshot-meta {
+        font-size: 14px;
+    }
+    
+    .snapshot-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .btn-snapshot {
+        font-size: 13px;
+        padding: 6px 12px;
+    }
+    
+    .snapshot-content {
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        background: white;
+        min-height: 500px;
+        position: relative;
+    }
+    
+    .snapshot-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border-radius: 6px;
+    }
+    
+    .snapshot-iframe {
+        width: 100%;
+        min-height: 600px;
+        border: none;
+        border-radius: 6px;
+    }
+    
+    .snapshot-warning {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+    }
+    
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #1a73e8;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .snapshot-tools {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 6px 6px 0 0;
+        border-bottom: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 13px;
+    }
+    
+    .tool-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #666;
+    }
+    
+    .zoom-controls {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .zoom-btn {
+        background: none;
+        border: 1px solid #ddd;
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+    
+    .zoom-btn:hover {
+        background-color: #f1f3f4;
+    }
+    
+    .zoom-level {
+        min-width: 50px;
+        text-align: center;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="snapshot-header">
+        <div class="snapshot-info">
+            <div>
+                <h5 class="mb-1">
+                    <i class="fas fa-camera me-2"></i>网页快照
+                </h5>
+                <div class="snapshot-meta">
+                    快照哈希: {{ snapshot_hash }} | 
+                    这是搜索引擎保存的页面副本，内容可能与当前页面不同
+                </div>
+            </div>
+            <div class="snapshot-actions">
+                <button onclick="history.back()" class="btn btn-outline-secondary btn-snapshot">
+                    <i class="fas fa-arrow-left me-1"></i>返回
+                </button>
+                <button onclick="printSnapshot()" class="btn btn-outline-primary btn-snapshot">
+                    <i class="fas fa-print me-1"></i>打印
+                </button>
+                <button onclick="downloadSnapshot()" class="btn btn-outline-success btn-snapshot">
+                    <i class="fas fa-download me-1"></i>下载
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    {% if content %}
+        <div class="snapshot-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>提示：</strong>此为网页快照，显示的是搜索引擎抓取时的页面状态。某些交互功能可能无法正常工作。
+        </div>
+        
+        <div class="snapshot-content">
+            <div class="snapshot-tools">
+                <div class="tool-item">
+                    <i class="fas fa-info-circle"></i>
+                    快照预览
+                </div>
+                <div class="tool-item zoom-controls">
+                    <span>缩放:</span>
+                    <button class="zoom-btn" onclick="zoomOut()">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                    <button class="zoom-btn" onclick="zoomIn()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                <div class="tool-item">
+                    <button class="zoom-btn" onclick="toggleFullscreen()">
+                        <i class="fas fa-expand"></i> 全屏
+                    </button>
+                </div>
+            </div>
+            
+            <div id="snapshotFrame" style="zoom: 1;">
+                {{ content|safe }}
+            </div>
+        </div>
+    {% else %}
+        <div class="snapshot-content">
+            <div class="snapshot-overlay">
+                <div class="text-center">
+                    <div class="loading-spinner mb-3"></div>
+                    <h5>快照不存在或已损坏</h5>
+                    <p class="text-muted">无法加载此网页的快照内容</p>
+                    <button onclick="history.back()" class="btn btn-primary">
+                        <i class="fas fa-arrow-left me-1"></i>返回搜索结果
+                    </button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentZoom = 100;
+
+function zoomIn() {
+    currentZoom += 10;
+    if (currentZoom > 200) currentZoom = 200;
+    updateZoom();
+}
+
+function zoomOut() {
+    currentZoom -= 10;
+    if (currentZoom < 50) currentZoom = 50;
+    updateZoom();
+}
+
+function updateZoom() {
+    const frame = document.getElementById('snapshotFrame');
+    const zoomLevel = document.getElementById('zoomLevel');
+    
+    if (frame && zoomLevel) {
+        frame.style.zoom = currentZoom / 100;
+        zoomLevel.textContent = currentZoom + '%';
+    }
+}
+
+function toggleFullscreen() {
+    const frame = document.getElementById('snapshotFrame');
+    if (frame) {
+        if (frame.requestFullscreen) {
+            frame.requestFullscreen();
+        } else if (frame.webkitRequestFullscreen) {
+            frame.webkitRequestFullscreen();
+        } else if (frame.msRequestFullscreen) {
+            frame.msRequestFullscreen();
+        }
+    }
+}
+
+function printSnapshot() {
+    // 创建新窗口用于打印
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>网页快照打印</title>
+            <style>
+                body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                .print-header { 
+                    border-bottom: 1px solid #ccc; 
+                    padding-bottom: 10px; 
+                    margin-bottom: 20px; 
+                    font-size: 12px; 
+                    color: #666; 
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-header">
+                网页快照 - 快照哈希: {{ snapshot_hash }}<br>
+                打印时间: ${new Date().toLocaleString()}
+            </div>
+            {{ content|safe }}
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+function downloadSnapshot() {
+    const content = `{{ content|safe }}`;
+    const blob = new Blob([content], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'snapshot_{{ snapshot_hash }}.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// 键盘快捷键
+document.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && e.key === '+') {
+        e.preventDefault();
+        zoomIn();
+    } else if (e.ctrlKey && e.key === '-') {
+        e.preventDefault();
+        zoomOut();
+    } else if (e.key === 'F11') {
+        e.preventDefault();
+        toggleFullscreen();
+    } else if (e.ctrlKey && e.key === 'p') {
+        e.preventDefault();
+        printSnapshot();
+    }
+});
+
+// 防止快照页面中的链接跳转
+document.addEventListener('DOMContentLoaded', function() {
+    const frame = document.getElementById('snapshotFrame');
+    if (frame) {
+        const links = frame.querySelectorAll('a');
+        links.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('这是网页快照，链接功能已被禁用。');
+            });
+        });
+        
+        // 禁用表单提交
+        const forms = frame.querySelectorAll('form');
+        forms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('这是网页快照，表单功能已被禁用。');
+            });
+        });
+    }
+});
+</script>
+{% endblock %} 

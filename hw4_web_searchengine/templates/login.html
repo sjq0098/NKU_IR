@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - NKUNEWS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .login-card {
+        max-width: 400px;
+        width: 100%;
+        padding: 40px;
+        border: 1px solid #dfe1e5;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        background: white;
+    }
+    
+    .brand-logo-small {
+        font-size: 3rem;
+        font-weight: 300;
+        text-align: center;
+        margin-bottom: 30px;
+        letter-spacing: -2px;
+    }
+    
+    .brand-logo-small .letter-南 { color: #4285f4; }
+    .brand-logo-small .letter-开 { color: #ea4335; }
+    .brand-logo-small .letter-新 { color: #fbbc05; }
+    .brand-logo-small .letter-闻 { color: #4285f4; }
+    .brand-logo-small .letter-搜 { color: #0f9d58; }
+    .brand-logo-small .letter-索 { color: #ea4335; }
+    .brand-logo-small .letter-s { color: #fbbc05; }
+    
+    .form-control {
+        border-radius: 4px;
+        border: 1px solid #dfe1e5;
+        padding: 12px 16px;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    
+    .form-control:focus {
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+    }
+    
+    .btn-login {
+        background-color: #1a73e8;
+        border: none;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .btn-login:hover {
+        background-color: #1557b0;
+        color: white;
+    }
+    
+    .register-link {
+        text-align: center;
+        color: #1a73e8;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .register-link:hover {
+        text-decoration: underline;
+        color: #1557b0;
+    }
+    
+    .divider {
+        text-align: center;
+        margin: 20px 0;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .back-home {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .back-home a {
+        color: #666;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .back-home a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="brand-logo-small">
+            <span class="letter-南">N</span><span class="letter-开">K</span><span class="letter-新">U</span><span class="letter-闻">N</span><span class="letter-搜">E</span><span class="letter-索">W</span><span class="letter-s">S</span>
+        </div>
+        
+        <h4 class="text-center mb-4">登录</h4>
+        
+        <form method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">用户名</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="password" class="form-label">密码</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-login">
+                <i class="fas fa-sign-in-alt me-2"></i>登录
+            </button>
+        </form>
+        
+        <div class="divider">
+            还没有账号？
+        </div>
+        
+        <div class="text-center">
+            <a href="{{ url_for('register') }}" class="register-link">
+                <i class="fas fa-user-plus me-1"></i>立即注册
+            </a>
+        </div>
+        
+        <div class="back-home">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-home me-1"></i>返回首页
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %} 

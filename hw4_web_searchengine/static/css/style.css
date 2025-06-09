@@ -1,0 +1,387 @@
+/* 南开新闻搜索引擎 - 主样式表 */
+
+/* 基础样式 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fafbfc;
+}
+
+/* 品牌标志样式 */
+.brand-text {
+    font-family: 'Arial', sans-serif;
+    font-weight: 300;
+    text-decoration: none !important;
+}
+
+.navbar .brand-text {
+    font-size: 1.8rem;
+    letter-spacing: -1px;
+}
+
+.brand-text .letter-南{ color: #4285f4; }
+.brand-text .letter-开 { color: #ea4335; }
+.brand-text .letter-新 { color: #fbbc05; }
+.brand-text .letter-闻 { color: #4285f4; }
+.brand-text .letter-搜 { color: #0f9d58; }
+.brand-text .letter-索 { color: #ea4335; }
+.brand-text .letter-s { color: #fbbc05; }
+
+/* 导航栏样式 */
+.navbar {
+    background-color: white !important;
+    border-bottom: 1px solid #e8eaed;
+    padding: 8px 0;
+}
+
+.navbar-brand:hover {
+    opacity: 0.8;
+}
+
+/* 搜索框通用样式 */
+.search-input {
+    font-size: 16px;
+    border: 1px solid #dfe1e5;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: rgba(66, 133, 244, 0.5);
+    box-shadow: 0 2px 8px rgba(66, 133, 244, 0.2);
+}
+
+/* 按钮样式 */
+.btn {
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* 搜索建议样式 */
+.suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #dfe1e5;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    margin-top: 1px;
+}
+
+.suggestion-group {
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.suggestion-group:last-child {
+    border-bottom: none;
+}
+
+.suggestion-group-title {
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #5f6368;
+    text-transform: uppercase;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e8eaed;
+}
+
+.suggestion-group-title i {
+    margin-right: 6px;
+    color: #9aa0a6;
+}
+
+.suggestion-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #3c4043;
+    transition: background-color 0.1s ease;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover,
+.suggestion-item.selected {
+    background-color: #f1f3f4;
+}
+
+.suggestion-item.active {
+    background-color: #e8f0fe;
+    color: #1a73e8;
+}
+
+.suggestion-icon {
+    margin-right: 12px;
+    color: #9aa0a6;
+    width: 16px;
+    text-align: center;
+    font-size: 12px;
+}
+
+.suggestion-text {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.suggestion-query {
+    font-weight: 600;
+    color: #1a73e8;
+}
+
+/* 搜索框样式优化 */
+.position-relative {
+    width: 100%;
+}
+
+.search-input {
+    border-radius: 24px;
+    padding: 12px 48px 12px 20px;
+    width: 100%;
+}
+
+.search-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9aa0a6;
+    pointer-events: none;
+}
+
+/* 结果高亮 */
+mark {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .search-container {
+        padding: 20px;
+    }
+    
+    .brand-logo {
+        font-size: 4rem !important;
+    }
+    
+    .search-buttons {
+        text-align: center;
+    }
+    
+    .search-btn {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+    }
+    
+    .search-options {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .brand-logo {
+        font-size: 3rem !important;
+    }
+    
+    .search-header .brand-text {
+        font-size: 1.5rem;
+    }
+    
+    .result-item {
+        padding: 15px 0;
+    }
+    
+    .search-filters {
+        text-align: center;
+    }
+    
+    .filter-btn {
+        display: inline-block;
+        margin: 2px;
+    }
+}
+
+/* 加载动画 */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(26, 115, 232, 0.3);
+    border-radius: 50%;
+    border-top-color: #1a73e8;
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* 工具提示 */
+.tooltip {
+    font-size: 12px;
+}
+
+/* 表单验证 */
+.is-invalid {
+    border-color: #dc3545;
+}
+
+.is-valid {
+    border-color: #28a745;
+}
+
+/* 阴影效果 */
+.shadow-hover {
+    transition: box-shadow 0.3s ease;
+}
+
+.shadow-hover:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* 文本选择样式 */
+::selection {
+    background-color: rgba(66, 133, 244, 0.3);
+    color: #333;
+}
+
+/* 辅助功能 */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* 打印样式 */
+@media print {
+    .navbar, .search-filters, .pagination, footer {
+        display: none !important;
+    }
+    
+    .container {
+        max-width: none !important;
+    }
+    
+    .result-item {
+        page-break-inside: avoid;
+        border: 1px solid #ddd;
+        margin-bottom: 20px;
+        padding: 15px;
+    }
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+        color: #e8eaed;
+    }
+    
+    .navbar {
+        background-color: #2d2d30 !important;
+        border-color: #3c4043;
+    }
+    
+    .search-input {
+        background-color: #2d2d30;
+        border-color: #3c4043;
+        color: #e8eaed;
+    }
+    
+    .result-item {
+        background-color: #2d2d30;
+        border-color: #3c4043;
+    }
+}
+
+/* 自定义滚动动画 */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 搜索结果动画 */
+.result-item {
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 焦点样式 */
+.btn:focus, .form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+}
+
+/* 无障碍支持 */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+} 

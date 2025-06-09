@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}搜索历史 - NKUNEWS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding-top: 20px;
+    }
+    
+    .history-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .history-item {
+        background: white;
+        border: 1px solid #e1e5ea;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.2s ease;
+    }
+    
+    .history-item:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-color: #c8e7ff;
+        transform: translateY(-1px);
+    }
+    
+    .history-query {
+        font-size: 18px;
+        font-weight: 500;
+        color: #1a0dab;
+        margin-bottom: 8px;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .history-query:hover {
+        text-decoration: underline;
+        color: #1a0dab;
+    }
+    
+    .history-meta {
+        color: #70757a;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    
+    .search-again-btn {
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        text-decoration: none;
+        transition: background-color 0.2s ease;
+    }
+    
+    .search-again-btn:hover {
+        background-color: #1557b0;
+        color: white;
+        text-decoration: none;
+    }
+    
+    .empty-history {
+        text-align: center;
+        padding: 60px 20px;
+        color: #70757a;
+    }
+    
+    .empty-history i {
+        font-size: 48px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .clear-history-btn {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    
+    .clear-history-btn:hover {
+        background-color: #c82333;
+    }
+    
+    .time-group {
+        margin-bottom: 30px;
+    }
+    
+    .time-group-header {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 15px;
+        border-left: 4px solid #1a73e8;
+    }
+    
+    .stats-card {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .stats-number {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="history-container">
+        <div class="history-header">
+            <h2><i class="fas fa-history me-3"></i>搜索历史</h2>
+            <p class="mb-0">查看您最近的搜索记录，快速重新搜索</p>
+        </div>
+        
+        {% if history %}
+            <div class="stats-card">
+                <div class="stats-number">{{ history|length }}</div>
+                <div>总搜索次数</div>
+            </div>
+            
+            <div class="text-end mb-3">
+                <button class="clear-history-btn" onclick="clearHistory()">
+                    <i class="fas fa-trash me-1"></i>清空历史
+                </button>
+            </div>
+            
+            <!-- 搜索历史列表 -->
+            {% for item in history %}
+            <div class="history-item">
+                <a href="{{ url_for('search') }}?q={{ item.query }}" class="history-query">
+                    {{ item.query }}
+                </a>
+                <div class="history-meta">
+                    <span class="meta-item">
+                        <i class="fas fa-clock"></i>
+                        {{ item.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                    </span>
+                    <span class="meta-item">
+                        <a href="{{ url_for('search') }}?q={{ item.query }}" class="search-again-btn">
+                            <i class="fas fa-search me-1"></i>再次搜索
+                        </a>
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+            
+        {% else %}
+            <div class="empty-history">
+                <i class="fas fa-search"></i>
+                <h4>暂无搜索历史</h4>
+                <p>开始搜索后，您的搜索记录将显示在这里</p>
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-search me-1"></i>开始搜索
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function clearHistory() {
+    if (confirm('确定要清空所有搜索历史吗？此操作无法撤销。')) {
+        fetch('/api/clear-history', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('清空历史失败，请稍后重试');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('操作失败，请稍后重试');
+        });
+    }
+}
+
+// 模拟moment.js功能的简单实现
+function moment(date) {
+    const d = date ? new Date(date) : new Date();
+    return {
+        startOf: function(unit) {
+            if (unit === 'day') {
+                return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+            }
+            return d;
+        },
+        subtract: function(amount, unit) {
+            const newDate = new Date(d);
+            if (unit === 'days') {
+                newDate.setDate(newDate.getDate() - amount);
+            }
+            return moment(newDate);
+        },
+        isSameOrAfter: function(other) {
+            return d >= other;
+        }
+    };
+}
+</script>
+{% endblock %} 

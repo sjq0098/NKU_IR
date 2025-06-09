@@ -1,0 +1,264 @@
+{% extends "base.html" %}
+
+{% block title %}注册 - NKUNEWS{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px 0;
+    }
+    
+    .register-card {
+        max-width: 450px;
+        width: 100%;
+        padding: 40px;
+        border: 1px solid #dfe1e5;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        background: white;
+    }
+    
+    .brand-logo-small {
+        font-size: 3rem;
+        font-weight: 300;
+        text-align: center;
+        margin-bottom: 30px;
+        letter-spacing: -2px;
+    }
+    
+    .brand-logo-small .letter-南 { color: #4285f4; }
+    .brand-logo-small .letter-开 { color: #ea4335; }
+    .brand-logo-small .letter-新 { color: #fbbc05; }
+    .brand-logo-small .letter-闻 { color: #4285f4; }
+    .brand-logo-small .letter-搜 { color: #0f9d58; }
+    .brand-logo-small .letter-索 { color: #ea4335; }
+    .brand-logo-small .letter-s { color: #fbbc05; }
+    
+    .form-control, .form-select {
+        border-radius: 4px;
+        border: 1px solid #dfe1e5;
+        padding: 12px 16px;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+    }
+    
+    .btn-register {
+        background-color: #1a73e8;
+        border: none;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    
+    .btn-register:hover {
+        background-color: #1557b0;
+        color: white;
+    }
+    
+    .login-link {
+        text-align: center;
+        color: #1a73e8;
+        text-decoration: none;
+        font-size: 14px;
+    }
+    
+    .login-link:hover {
+        text-decoration: underline;
+        color: #1557b0;
+    }
+    
+    .divider {
+        text-align: center;
+        margin: 20px 0;
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .back-home {
+        text-align: center;
+        margin-top: 20px;
+    }
+    
+    .back-home a {
+        color: #666;
+        text-decoration: none;
+        font-size: 13px;
+    }
+    
+    .back-home a:hover {
+        text-decoration: underline;
+    }
+    
+    .college-info {
+        background-color: #e8f0fe;
+        border: 1px solid #c8e7ff;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 20px;
+        font-size: 12px;
+        color: #1558d6;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-container">
+    <div class="register-card">
+        <div class="brand-logo-small">
+            <span class="letter-南">N</span><span class="letter-开">K</span><span class="letter-新">U</span><span class="letter-闻">N</span><span class="letter-搜">E</span><span class="letter-索">W</span><span class="letter-s">S</span>
+        </div>
+        
+        <h4 class="text-center mb-4">注册账号</h4>
+        
+        <div class="college-info">
+            <i class="fas fa-info-circle me-1"></i>
+            选择您的学院将为您提供个性化的搜索结果，相关专业内容将获得更高的搜索排序权重。
+        </div>
+        
+        <form method="POST">
+            <div class="mb-3">
+                <label for="username" class="form-label">用户名</label>
+                <input type="text" 
+                       class="form-control" 
+                       id="username" 
+                       name="username" 
+                       placeholder="输入用户名"
+                       required 
+                       minlength="3"
+                       maxlength="20">
+                <small class="text-muted">3-20个字符，只能包含字母、数字和下划线</small>
+            </div>
+            
+            <div class="mb-3">
+                <label for="email" class="form-label">邮箱</label>
+                <input type="email" 
+                       class="form-control" 
+                       id="email" 
+                       name="email" 
+                       placeholder="输入邮箱地址"
+                       required>
+                <small class="text-muted">用于账号安全和密码找回</small>
+            </div>
+            
+            <div class="mb-3">
+                <label for="password" class="form-label">密码</label>
+                <input type="password" 
+                       class="form-control" 
+                       id="password" 
+                       name="password" 
+                       placeholder="输入密码"
+                       required 
+                       minlength="6">
+                <small class="text-muted">至少6个字符</small>
+            </div>
+            
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">确认密码</label>
+                <input type="password" 
+                       class="form-control" 
+                       id="confirm_password" 
+                       name="confirm_password" 
+                       placeholder="再次输入密码"
+                       required>
+            </div>
+            
+            <div class="mb-3">
+                <label for="college" class="form-label">所属学院</label>
+                <select class="form-select" id="college" name="college" required>
+                    <option value="">请选择您的学院</option>
+                    <option value="计算机">计算机学院</option>
+                    <option value="金融">金融学院</option>
+                    <option value="数学">数学学院</option>
+                    <option value="物理">物理学院</option>
+                    <option value="化学">化学学院</option>
+                    <option value="文学">文学院</option>
+                    <option value="历史">历史学院</option>
+                    <option value="生物">生物学院</option>
+                    <option value="经济">经济学院</option>
+                    <option value="法学">法学院</option>
+                    <option value="外语">外国语学院</option>
+                    <option value="新闻">新闻与传播学院</option>
+                    <option value="哲学">哲学院</option>
+                    <option value="管理">商学院</option>
+                    <option value="环境">环境科学与工程学院</option>
+                    <option value="医学">医学院</option>
+                    <option value="其他">其他</option>
+                </select>
+                <small class="text-muted">选择您的专业所属学院，帮助个性化搜索</small>
+            </div>
+            
+            <button type="submit" class="btn btn-register">
+                <i class="fas fa-user-plus me-2"></i>注册
+            </button>
+        </form>
+        
+        <div class="divider">
+            已有账号？
+        </div>
+        
+        <div class="text-center">
+            <a href="{{ url_for('login') }}" class="login-link">
+                <i class="fas fa-sign-in-alt me-1"></i>立即登录
+            </a>
+        </div>
+        
+        <div class="back-home">
+            <a href="{{ url_for('index') }}">
+                <i class="fas fa-home me-1"></i>返回首页
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    
+    function validatePassword() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('密码不匹配');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    }
+    
+    password.addEventListener('change', validatePassword);
+    confirmPassword.addEventListener('keyup', validatePassword);
+    
+    // 用户名验证
+    const username = document.getElementById('username');
+    username.addEventListener('input', function() {
+        const value = this.value;
+        const regex = /^[a-zA-Z0-9_]+$/;
+        
+        if (value && !regex.test(value)) {
+            this.setCustomValidity('用户名只能包含字母、数字和下划线');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+});
+</script>
+{% endblock %} 

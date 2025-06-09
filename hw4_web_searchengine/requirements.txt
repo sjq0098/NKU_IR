@@ -1,0 +1,9 @@
+Flask==2.3.3
+pymongo==4.5.0
+whoosh==2.7.4
+jieba==0.42.1
+Werkzeug==2.3.7
+gridfs==0.1.0
+tqdm==4.66.1
+requests==2.31.0
+bson==0.5.10 

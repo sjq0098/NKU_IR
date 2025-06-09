@@ -1,0 +1,12 @@
+2025-06-09 19:13:31,917 - INFO - 索引将保存在: d:\Principle_of_Information_Retrieval System(IR)\hw4_web_searchengine\whoosh_index
+2025-06-09 19:13:32,070 - INFO - 开始构建新闻索引...
+2025-06-09 19:13:32,190 - INFO - 获取到 15772 个PageRank分数
+2025-06-09 19:13:32,285 - INFO - 找到 15156 条新闻数据
+2025-06-09 19:13:32,381 - DEBUG - Building prefix dict from the default dictionary ...
+2025-06-09 19:13:32,386 - DEBUG - Loading model from cache C:\Users\SJQ\AppData\Local\Temp\jieba.cache
+2025-06-09 19:13:33,185 - DEBUG - Loading model cost 0.802 seconds.
+2025-06-09 19:13:33,186 - DEBUG - Prefix dict has been built successfully.
+2025-06-09 19:15:54,365 - INFO - 新闻索引创建完成！共处理 15156 条数据
+2025-06-09 19:18:07,902 - INFO - 开始构建文档索引...
+2025-06-09 19:18:07,931 - INFO - 找到 500 条文档数据
+2025-06-09 19:18:08,336 - INFO - 文档索引创建完成！共处理 500 条数据
